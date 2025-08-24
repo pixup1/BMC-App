@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Blender Motion Control</string>
+    <string name="title_activity_main">BMC</string>
+</resources>
