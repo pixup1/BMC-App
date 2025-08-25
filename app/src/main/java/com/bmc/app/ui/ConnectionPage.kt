@@ -25,13 +25,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +46,8 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.bmc.app.ui.components.QrScanner
+import com.bmc.app.ui.components.TopBar
+import com.bmc.app.ui.components.TopBarButton
 import com.bmc.app.ui.theme.Dimens
 import kotlinx.coroutines.launch
 
@@ -86,8 +87,13 @@ fun ConnectionPage(
     Scaffold (
         topBar = {
             TopBar(
+                title = "Connect to addon",
                 modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
-                onExit = onExit
+                rightButton = TopBarButton(
+                    icon = Icons.Filled.Close,
+                    description = "Close",
+                    onClick = onExit
+                )
             )
         },
         snackbarHost = {
@@ -100,7 +106,7 @@ fun ConnectionPage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = Dimens.PaddingScaffoldContent)
+                .padding(Dimens.PaddingScaffoldContent)
         ) {
             if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
                 Text("Scan addon QR code :")
@@ -159,14 +165,14 @@ fun ConnectionPage(
                         }
                     }
                 }
-                Text("Or enter host address manually :")
+                Text("\nOr enter host address manually :")
             } else {
                 Text("Enter host address :")
             }
-            TextField(
+            OutlinedTextField(
                 value = addressInput,
                 onValueChange = { addressInput = it },
-                placeholder = { Text("IP Address : Port") },
+                placeholder = { Text("IP:Port") },
                 keyboardOptions = KeyboardOptions(
                     autoCorrectEnabled = false,
                     capitalization = KeyboardCapitalization.None,
@@ -175,31 +181,8 @@ fun ConnectionPage(
                 keyboardActions = KeyboardActions(
                     onDone = { onAddressSubmit(addressInput) }
                 ),
-                singleLine = true
-            )
-        }
-    }
-}
-
-@Composable
-private fun TopBar(
-    modifier: Modifier,
-    onExit: () -> Unit
-) {
-    Box(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = "Connect to addon",
-            modifier = Modifier.align(Alignment.Center)
-        )
-        IconButton(
-            onClick = onExit,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Close,
-                contentDescription = "Close"
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
