@@ -10,6 +10,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.bmc.app.ConnectionManager
+import com.bmc.app.ui.models.ConnectionState
 import com.bmc.app.ui.theme.BlenderMotionControlTheme
 
 @Composable
@@ -22,6 +24,8 @@ fun BmcApp(
     val bmcUiState by bmcViewModel.uiState.collectAsState()
     val sensorData by bmcViewModel.sensorData.collectAsState()
 
+    val connectionManager = ConnectionManager()
+
     BlenderMotionControlTheme {
         NavHost(
             navController = navController,
@@ -33,6 +37,8 @@ fun BmcApp(
                 MainPage(
                     openSettingsPage = { navController.navigate("settings") },
                     openConnectionPage = { navController.navigate("connection") },
+                    connectionState = bmcUiState.connectionState,
+                    onDisconnect = { bmcViewModel.updateConnectionState(ConnectionState.Disconnected) },
                     sensorData = sensorData
                 )
             }
@@ -88,7 +94,15 @@ fun BmcApp(
             ) {
                 ConnectionPage(
                     onExit = { navController.popBackStack() },
-                    onAddressSubmit = { navController.popBackStack() /*TODO*/ }
+                    onAddressSubmit = {
+                        bmcViewModel.updateConnectionState(ConnectionState.Connecting(it)) /*TODO*/
+                        if (connectionManager.connect(it)) {
+                            bmcViewModel.updateConnectionState(ConnectionState.Connected(it))
+                            navController.popBackStack()
+                        } else {
+                            bmcViewModel.updateConnectionState(ConnectionState.Disconnected)
+                        }
+                    }
                 )
             }
         }

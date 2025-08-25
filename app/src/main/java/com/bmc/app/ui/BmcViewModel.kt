@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
+import com.bmc.app.ui.models.ConnectionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +16,10 @@ import kotlinx.coroutines.flow.asStateFlow
 class BmcViewModel(app: Application) : AndroidViewModel(app) {
     private val _uiState = MutableStateFlow(BmcUiState())
     val uiState: StateFlow<BmcUiState> = _uiState.asStateFlow()
+
+    fun updateConnectionState(newState: ConnectionState) {
+        _uiState.value = _uiState.value.copy(connectionState = newState)
+    }
 
     private val sensorManager =
         application.getSystemService(Context.SENSOR_SERVICE) as SensorManager

@@ -59,6 +59,8 @@ dependencies {
     // For permissions
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("androidx.fragment:fragment-ktx:1.8.9")
+    // More icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     implementation (libs.androidx.navigation.compose)
 
