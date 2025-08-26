@@ -95,7 +95,7 @@ fun BmcApp(
                 ConnectionPage(
                     onExit = { navController.popBackStack() },
                     onAddressSubmit = {
-                        bmcViewModel.updateConnectionState(ConnectionState.Connecting(it)) /*TODO*/
+                        bmcViewModel.updateConnectionState(ConnectionState.Connecting) /*TODO*/
                         if (connectionManager.connect(it)) {
                             bmcViewModel.updateConnectionState(ConnectionState.Connected(it))
                             navController.popBackStack()

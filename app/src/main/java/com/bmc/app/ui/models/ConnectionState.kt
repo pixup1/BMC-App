@@ -2,6 +2,6 @@ package com.bmc.app.ui.models
 
 sealed class ConnectionState {
     object Disconnected : ConnectionState()
-    data class Connecting(val host: String) : ConnectionState()
+    object Connecting : ConnectionState()
     data class Connected(val host: String) : ConnectionState()
 }
