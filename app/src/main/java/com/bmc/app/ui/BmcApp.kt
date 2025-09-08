@@ -24,7 +24,7 @@ fun BmcApp(
     val bmcUiState by bmcViewModel.uiState.collectAsState()
     val sensorData by bmcViewModel.sensorData.collectAsState()
 
-    val connectionManager = ConnectionManager()
+    val connectionManager = ConnectionManager(bmcViewModel = bmcViewModel)
 
     BlenderMotionControlTheme {
         NavHost(
@@ -38,7 +38,9 @@ fun BmcApp(
                     openSettingsPage = { navController.navigate("settings") },
                     openConnectionPage = { navController.navigate("connection") },
                     connectionState = bmcUiState.connectionState,
-                    onDisconnect = { bmcViewModel.updateConnectionState(ConnectionState.Disconnected) },
+                    onDisconnect = {
+                        connectionManager.disconnect()
+                    },
                     sensorData = sensorData
                 )
             }
@@ -95,13 +97,8 @@ fun BmcApp(
                 ConnectionPage(
                     onExit = { navController.popBackStack() },
                     onAddressSubmit = {
-                        bmcViewModel.updateConnectionState(ConnectionState.Connecting) /*TODO*/
-                        if (connectionManager.connect(it)) {
-                            bmcViewModel.updateConnectionState(ConnectionState.Connected(it))
-                            navController.popBackStack()
-                        } else {
-                            bmcViewModel.updateConnectionState(ConnectionState.Disconnected)
-                        }
+                        connectionManager.connect(it)
+                        navController.popBackStack()
                     }
                 )
             }

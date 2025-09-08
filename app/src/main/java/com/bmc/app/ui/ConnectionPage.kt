@@ -184,6 +184,8 @@ fun ConnectionPage(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            //TODO: Add a "recent connections" list
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
-Blender Motion Control - Addon
+Blender Motion Control - App
 
 Copyright (C) 2025 pixup1
 
