@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.bmc.app.ui.components.TopBar
 import com.bmc.app.ui.components.TopBarButton
-import com.bmc.app.ui.models.ConnectionState
+import com.bmc.app.models.ConnectionState
 import com.bmc.app.ui.theme.Dimens
 
 @Composable

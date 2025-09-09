@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "com.bmc.app.models";
+option java_multiple_files = true;
+
+message ConnectionPageData {
+  repeated string recent_hosts = 1;
+}
+
+//message Settings {
+//
+//}

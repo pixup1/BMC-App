@@ -8,4 +8,8 @@ object Dimens {
     val HeightBottomBarContent = 34.dp
     val PaddingBottomBar = 10.dp
     val PaddingSettingsItems = 16.dp
+
+    val RecentConnectionsDelete = 25.dp
+
+    val PaddingRecentConnectionsItem = 4.dp
 }

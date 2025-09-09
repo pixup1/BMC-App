@@ -1,5 +1,6 @@
 package com.bmc.app
 
+import com.bmc.app.models.ConnectionState
 import com.bmc.app.ui.BmcViewModel
 
 class ConnectionManager(
@@ -21,9 +22,9 @@ class ConnectionManager(
     // Kotlin functions for use by C++
     fun setUiConnectionState(state: Int, host: String = "host") {
         when (state) {
-            0 -> bmcViewModel.updateConnectionState(com.bmc.app.ui.models.ConnectionState.Disconnected)
-            1 -> bmcViewModel.updateConnectionState(com.bmc.app.ui.models.ConnectionState.Connecting(host))
-            2 -> bmcViewModel.updateConnectionState(com.bmc.app.ui.models.ConnectionState.Connected(host))
+            0 -> bmcViewModel.updateConnectionState(ConnectionState.Disconnected)
+            1 -> bmcViewModel.updateConnectionState(ConnectionState.Connecting(host))
+            2 -> bmcViewModel.updateConnectionState(ConnectionState.Connected(host))
             else -> throw IllegalArgumentException("Invalid state value: $state")
         }
     }

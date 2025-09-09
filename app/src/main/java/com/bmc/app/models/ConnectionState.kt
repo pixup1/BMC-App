@@ -1,4 +1,4 @@
-package com.bmc.app.ui.models
+package com.bmc.app.models
 
 sealed class ConnectionState {
     object Disconnected : ConnectionState()

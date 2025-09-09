@@ -45,11 +45,27 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
+import com.bmc.app.models.ConnectionPageData
+import com.bmc.app.models.ConnectionPageDataSerializer
+import android.content.Context
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.tooling.preview.Preview
 import com.bmc.app.ui.components.QrScanner
 import com.bmc.app.ui.components.TopBar
 import com.bmc.app.ui.components.TopBarButton
 import com.bmc.app.ui.theme.Dimens
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+
+val Context.connectionPageDataStore: DataStore<ConnectionPageData> by dataStore(
+    fileName = "connection_page_data.pb",
+    serializer = ConnectionPageDataSerializer
+)
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -61,6 +77,23 @@ fun ConnectionPage(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+
+    val recentHostsFlow = context.connectionPageDataStore.data
+        .map { data: ConnectionPageData -> data.recentHostsList }
+    val recentHosts by recentHostsFlow.collectAsState(initial = emptyList())
+
+    fun connect(address: String) {
+        onAddressSubmit(address) //TODO: validate address (but not in this file)
+        scope.launch { //TODO: only do this if connection is successful
+            context.connectionPageDataStore.updateData { currentData ->
+                val updatedRecentHosts = listOf(address) + currentData.recentHostsList.filter { it != address }
+                currentData.toBuilder()
+                    .clearRecentHosts()
+                    .addAllRecentHosts(updatedRecentHosts.take(5)) // Keep only the 5 most recent unique hosts
+                    .build()
+            }
+        }
+    }
 
     var addressInput by remember { mutableStateOf("") }
     var askedForPermission by remember { mutableStateOf(false) }
@@ -116,7 +149,7 @@ fun ConnectionPage(
                         .size(width = 300.dp, height = 400.dp)
                 ) {
                     if (hasCameraPermission) {
-                        QrScanner(onQrCodeScanned = { onAddressSubmit(it) })
+                        QrScanner(onQrCodeScanned = { connect(addressInput) })
                     } else {
 //                        if (ActivityCompat.shouldShowRequestPermissionRationale(
 //                                context as android.app.Activity,
@@ -179,13 +212,66 @@ fun ConnectionPage(
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { onAddressSubmit(addressInput) }
+                    onDone = { connect(addressInput) }
                 ),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            //TODO: Add a "recent connections" list
+            if (!recentHosts.isEmpty()) {
+                Text("\nRecent connections :")
+
+                Column {
+                    recentHosts.forEach { host ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.PaddingRecentConnectionsItem)
+                        ) {
+                            Text(
+                                host,
+                                modifier = Modifier
+                                    .clickable {
+                                        addressInput = host
+                                        onAddressSubmit(host)
+                                    }
+                            )
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        context.connectionPageDataStore.updateData { currentData ->
+                                            currentData.toBuilder()
+                                                .clearRecentHosts()
+                                                .addAllRecentHosts(currentData.recentHostsList.filter { it != host })
+                                                .build()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .size(Dimens.RecentConnectionsDelete)
+
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Clear,
+                                    tint = Color.Black,
+                                    contentDescription = "Forget host",
+                                    modifier = Modifier.size(Dimens.RecentConnectionsDelete)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
+}
+
+@Preview
+@Composable
+fun ConnectionPagePreview() {
+    ConnectionPage(
+        onExit = {},
+        onAddressSubmit = {}
+    )
 }

@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bmc.app.ConnectionManager
-import com.bmc.app.ui.models.ConnectionState
 import com.bmc.app.ui.theme.BlenderMotionControlTheme
 
 @Composable
