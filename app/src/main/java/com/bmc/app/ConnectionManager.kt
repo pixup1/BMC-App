@@ -7,11 +7,19 @@ class ConnectionManager(
     val bmcViewModel: BmcViewModel // Same ViewModel instance as in the UI
 ) {
     // Native functions for use by Kotlin
-    external fun connect(address: String)
+    private external fun connectToHost(address: String)
 
     external fun disconnect()
 
     external fun sendData(data: String)
+
+    fun connect(address: String) {
+        if (Regex("""^(\d{1,3}\.){3}\d{1,3}:\d{1,5}$""").matches(address)) {
+            connectToHost(address)
+        } else {
+            throw IllegalArgumentException("Invalid address format: $address")
+        }
+    }
 
     companion object {
         init {

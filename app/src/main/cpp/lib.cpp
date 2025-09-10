@@ -8,7 +8,7 @@
 
 udpClient* client = nullptr;
 
-extern "C" JNIEXPORT void JNICALL Java_com_bmc_app_ConnectionManager_connect(
+extern "C" JNIEXPORT void JNICALL Java_com_bmc_app_ConnectionManager_connectToHost(
         JNIEnv* env,
         jobject cm,
         jstring address) {
