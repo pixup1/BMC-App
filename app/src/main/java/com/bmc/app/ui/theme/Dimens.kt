@@ -11,5 +11,5 @@ object Dimens {
 
     val RecentConnectionsDelete = 25.dp
 
-    val PaddingRecentConnectionsItem = 4.dp
+    val HeightRecentConnectionsItem = 36.dp
 }

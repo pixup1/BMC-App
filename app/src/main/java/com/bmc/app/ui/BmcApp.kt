@@ -5,12 +5,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bmc.app.ConnectionManager
+import com.bmc.app.DataManager
 import com.bmc.app.ui.theme.BlenderMotionControlTheme
 
 @Composable
@@ -18,12 +20,15 @@ import com.bmc.app.ui.theme.BlenderMotionControlTheme
 fun BmcApp(
     bmcViewModel: BmcViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+
     val navController = rememberNavController()
 
     val bmcUiState by bmcViewModel.uiState.collectAsState()
     val sensorData by bmcViewModel.sensorData.collectAsState()
 
     val connectionManager = ConnectionManager(bmcViewModel = bmcViewModel)
+    val sensorManager = DataManager(context, connectionManager)
 
     BlenderMotionControlTheme {
         NavHost(

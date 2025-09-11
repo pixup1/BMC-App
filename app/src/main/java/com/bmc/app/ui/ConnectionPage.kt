@@ -51,6 +51,7 @@ import com.bmc.app.models.ConnectionPageData
 import com.bmc.app.models.ConnectionPageDataSerializer
 import android.content.Context
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.collectAsState
@@ -247,16 +248,23 @@ fun ConnectionPage(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.PaddingRecentConnectionsItem)
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
-                                host,
+                            Box (
                                 modifier = Modifier
+                                    .height(Dimens.HeightRecentConnectionsItem)
+                                    .weight(1f)
                                     .clickable {
                                         addressInput = host
                                         onAddressSubmit(host)
                                     }
-                            )
+                            ) {
+                                Text(
+                                    host,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterStart)
+                                )
+                            }
                             IconButton(
                                 onClick = {
                                     scope.launch {
@@ -271,7 +279,6 @@ fun ConnectionPage(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
                                     .size(Dimens.RecentConnectionsDelete)
-
                             ) {
                                 Icon(
                                     imageVector = Icons.Rounded.Clear,
