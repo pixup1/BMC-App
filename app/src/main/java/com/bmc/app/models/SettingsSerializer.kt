@@ -6,19 +6,19 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-object ConnectionPageDataSerializer : Serializer<ConnectionPageData> {
-    override val defaultValue: ConnectionPageData = ConnectionPageData.getDefaultInstance()
+object SettingsSerializer : Serializer<Settings> {
+    override val defaultValue: Settings = Settings.getDefaultInstance()
 
-    override suspend fun readFrom(input: InputStream): ConnectionPageData {
+    override suspend fun readFrom(input: InputStream): Settings {
         try {
-            return ConnectionPageData.parseFrom(input)
+            return Settings.parseFrom(input)
         } catch (exception: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read proto.", exception)
         }
     }
 
     override suspend fun writeTo(
-        t: ConnectionPageData,
+        t: Settings,
         output: OutputStream
     ) {
         t.writeTo(output)

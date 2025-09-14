@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Button
@@ -89,6 +90,11 @@ fun MainPage(
                     onClick = openConnectionPage,
                     modifier = Modifier.align(Alignment.Center)
                 ) {
+                    Icon(
+                        imageVector = Icons.Filled.Link,
+                        contentDescription = null
+                    )
+                    Box(Modifier.size(Dimens.PaddingButtonIcon))
                     Text("Connect to addon")
                 }
             }
@@ -192,7 +198,8 @@ fun MainPagePreview() {
     MainPage(
         openSettingsPage = {},
         openConnectionPage = {},
-        connectionState = ConnectionState.Connected("127.0.0.1"),
+        //connectionState = ConnectionState.Connected("127.0.0.1"),
+        connectionState = ConnectionState.Disconnected,
         onDisconnect = {},
         sensorData = floatArrayOf(0f, 0f, 0f)
     )

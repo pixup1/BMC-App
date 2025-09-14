@@ -23,10 +23,11 @@ public:
     /**
      * @param server_ip IP of the server to connect to
      * @param server_port Port of the server to connect
+     * @param device Name of the device to report to the server
      * @param env JNI environment
      * @param cm Reference to the ConnectionManager caller Kotlin instance
      */
-    udpClient(std::string server_ip, int server_port, JNIEnv* env, jobject cm);
+    udpClient(std::string server_ip, int server_port, std::string device, JNIEnv* env, jobject cm);
     void stop();
     void maintainConnection();
     void listen();

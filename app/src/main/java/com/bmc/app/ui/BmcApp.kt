@@ -1,19 +1,32 @@
 package com.bmc.app.ui
 
+import android.content.Context
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bmc.app.ConnectionManager
 import com.bmc.app.DataManager
+import com.bmc.app.models.ConnectionPageData
+import com.bmc.app.models.ConnectionPageDataSerializer
+import com.bmc.app.models.Settings
+import com.bmc.app.models.SettingsSerializer
 import com.bmc.app.ui.theme.BlenderMotionControlTheme
+
+val Context.settingsDataStore: DataStore<Settings> by dataStore(
+    fileName = "settings.pb",
+    serializer = SettingsSerializer
+)
 
 @Composable
 @Preview
@@ -21,14 +34,15 @@ fun BmcApp(
     bmcViewModel: BmcViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val navController = rememberNavController()
 
     val bmcUiState by bmcViewModel.uiState.collectAsState()
     val sensorData by bmcViewModel.sensorData.collectAsState()
 
-    val connectionManager = ConnectionManager(bmcViewModel = bmcViewModel)
-    val sensorManager = DataManager(context, connectionManager)
+    val connectionManager = ConnectionManager(context, bmcViewModel = bmcViewModel)
+    val dataManager = DataManager(context, scope, connectionManager)
 
     BlenderMotionControlTheme {
         NavHost(

@@ -3,7 +3,7 @@
 #include <sys/system_properties.h>
 #include <android/log.h>
 
-udpClient::udpClient(std::string server_ip, int server_port, JNIEnv *env, jobject cm)
+udpClient::udpClient(std::string server_ip, int server_port, std::string device, JNIEnv *env, jobject cm)
         : running(true) {
     this->jvm = nullptr;
     env->GetJavaVM(&this->jvm);
@@ -52,19 +52,21 @@ udpClient::udpClient(std::string server_ip, int server_port, JNIEnv *env, jobjec
     this->listen_thread = std::thread(&udpClient::listen, this);
     this->timeout_thread = std::thread(&udpClient::checkTimeouts, this);
 
-    // Get device name from system properties
-    char man[PROP_VALUE_MAX + 1], mod[PROP_VALUE_MAX + 1];
-    int lman = __system_property_get("ro.product.manufacturer", man);
-    int lmod = __system_property_get("ro.product.model", mod);
-    int len = lman + lmod;
-    if (len > 0) {
-        char *buf = static_cast<char *>(malloc((len + 2) * sizeof(char)));
-        snprintf(buf, len + 2, "%s/%s", lman > 0 ? man : "", lmod > 0 ? mod : "");
-        this->device_name = std::string(buf);
-        free(buf);
-    } else {
-        this->device_name = "N/A";
-    }
+//    // Get device model from system properties
+//    char man[PROP_VALUE_MAX + 1], mod[PROP_VALUE_MAX + 1];
+//    int lman = __system_property_get("ro.product.manufacturer", man);
+//    int lmod = __system_property_get("ro.product.model", mod);
+//    int len = lman + lmod;
+//    if (len > 0) {
+//        char *buf = static_cast<char *>(malloc((len + 2) * sizeof(char)));
+//        snprintf(buf, len + 2, "%s/%s", lman > 0 ? man : "", lmod > 0 ? mod : "");
+//        this->device_name = std::string(buf);
+//        free(buf);
+//    } else {
+//        this->device_name = "N/A";
+//    }
+
+    this->device_name = device;
 
     // Sent messages awaiting replies
     this->sent_messages = std::vector<sent>();

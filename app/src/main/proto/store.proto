@@ -7,6 +7,7 @@ message ConnectionPageData {
   repeated string recent_hosts = 1;
 }
 
-//message Settings {
-//
-//}
+message Settings {
+  bool use_accelerometer = 1;
+  float accelerometer_cutoff = 2;
+}

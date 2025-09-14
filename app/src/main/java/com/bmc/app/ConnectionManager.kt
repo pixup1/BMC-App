@@ -1,13 +1,16 @@
 package com.bmc.app
 
+import android.content.Context
 import com.bmc.app.models.ConnectionState
 import com.bmc.app.ui.BmcViewModel
+import android.provider.Settings
 
 class ConnectionManager(
+    private val context: Context,
     val bmcViewModel: BmcViewModel // Same ViewModel instance as in the UI
 ) {
     // Native functions for use by Kotlin
-    private external fun connectToHost(address: String)
+    private external fun connectToHost(address: String, device: String)
 
     external fun disconnect()
 
@@ -15,7 +18,11 @@ class ConnectionManager(
 
     fun connect(address: String) {
         if (Regex("""^(\d{1,3}\.){3}\d{1,3}:\d{1,5}$""").matches(address)) {
-            connectToHost(address)
+            val deviceName = Settings.Global.getString(
+                context.contentResolver,
+                Settings.Global.DEVICE_NAME
+            )
+            connectToHost(address, deviceName)
         } else {
             throw IllegalArgumentException("Invalid address format: $address")
         }
