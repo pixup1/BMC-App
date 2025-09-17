@@ -5,6 +5,12 @@ import kotlin.math.sqrt
 data class Quaternion(val w: Double, val x: Double, val y: Double, val z: Double)
 data class Vector3(val x: Double, val y: Double, val z: Double)
 
+operator fun Quaternion.plus(o: Quaternion) =
+    Quaternion(w + o.w, x + o.x, y + o.y, z + o.z)
+
+operator fun Quaternion.minus(o: Quaternion) =
+    Quaternion(w - o.w, x - o.x, y - o.y, z - o.z)
+
 operator fun Quaternion.times(o: Quaternion): Quaternion =
     Quaternion(
         w*o.w - x*o.x - y*o.y - z*o.z,
@@ -27,9 +33,28 @@ fun Quaternion.rotate(v: Vector3): Vector3 {
     return Vector3(res.x, res.y, res.z)
 }
 
-operator fun Vector3.plus(o: Vector3) = Vector3(x + o.x, y + o.y, z + o.z)
+fun Quaternion.toArray() = arrayOf(w, x, y, z)
 
-operator fun Vector3.times(s: Double) = Vector3(x * s, y * s, z * s)
+operator fun Vector3.plus(o: Vector3) =
+    Vector3(x + o.x, y + o.y, z + o.z)
+
+operator fun Vector3.minus(o: Vector3) =
+    Vector3(x - o.x, y - o.y, z - o.z)
+
+operator fun Vector3.times(s: Double) =
+    Vector3(x * s, y * s, z * s)
+
+fun Vector3.cross(o: Vector3) =
+    Vector3(
+        y * o.z - z * o.y,
+        z * o.x - x * o.z,
+        x * o.y - y * o.x
+    )
+
+fun Vector3.normalize(): Vector3 {
+    val len = magnitude()
+    return Vector3(x/len, y/len, z/len)
+}
 
 fun Vector3.magnitude() = sqrt(x*x + y*y + z*z)
 

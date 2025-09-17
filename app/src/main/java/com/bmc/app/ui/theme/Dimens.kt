@@ -14,4 +14,12 @@ object Dimens {
     val PaddingSettingsSliderValue = 16.dp
     val RecentConnectionsDelete = 25.dp
     val HeightRecentConnectionsItem = 36.dp
+    val SizeMainButtons = 100.dp
+    val RadiusMainButtons = 16.dp
+    val PaddingBetweenMainButtons = 12.dp
+    val SizeDotDotDot = 26.dp
+    val PaddingDotDotDot = 10.dp
+    val RadiusDialog = 24.dp
+    val SizeAxisDialogPhone = 140.dp
+    val SizeAxisDialogArrows = 90.dp
 }

@@ -25,7 +25,7 @@ fun TopBar (
     title: String?,
     leftButton: TopBarButton? = null,
     rightButton: TopBarButton? = null,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier

@@ -17,28 +17,7 @@ class BmcViewModel(app: Application) : AndroidViewModel(app) {
     private val _uiState = MutableStateFlow(BmcUiState())
     val uiState: StateFlow<BmcUiState> = _uiState.asStateFlow()
 
-    fun updateConnectionState(newState: ConnectionState) {
+    fun setConnectionState(newState: ConnectionState) {
         _uiState.value = _uiState.value.copy(connectionState = newState)
-    }
-
-    private val sensorManager =
-        application.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-    private val rotation =
-        sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-
-    // Sensor state
-    private val _sensorData = MutableStateFlow(floatArrayOf(0f, 0f, 0f))
-    val sensorData: StateFlow<FloatArray> = _sensorData.asStateFlow()
-
-    private val listener = object : SensorEventListener {
-        override fun onSensorChanged(event: SensorEvent) {
-            _sensorData.value = event.values.clone()
-        }
-
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-    }
-
-    init {
-        sensorManager.registerListener(listener, rotation, SensorManager.SENSOR_DELAY_UI)
     }
 }

@@ -1,5 +1,8 @@
 package com.bmc.app.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,22 +15,43 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.ControlCamera
+import androidx.compose.material.icons.rounded.FlipCameraAndroid
+import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,17 +59,51 @@ import androidx.compose.ui.unit.times
 import com.bmc.app.ui.components.TopBar
 import com.bmc.app.ui.components.TopBarButton
 import com.bmc.app.models.ConnectionState
+import com.bmc.app.models.Settings
+import com.bmc.app.ui.components.SettingsSwitch
 import com.bmc.app.ui.theme.Dimens
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MainPage(
     openSettingsPage: () -> Unit,
     openConnectionPage: () -> Unit,
+    resetTransform: () -> Unit,
+    lockAccelerometer: () -> Unit,
+    lockGyroscope: () -> Unit,
+    unlockAccelerometer: () -> Unit,
+    unlockGyroscope: () -> Unit,
     connectionState: ConnectionState,
     onDisconnect: () -> Unit,
-    sensorData: FloatArray,
     modifier: Modifier = Modifier
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val absoluteRotationFlow = context.settingsDataStore.data
+        .map { data: Settings -> data.absoluteRotation }
+    val absoluteRotation by absoluteRotationFlow.collectAsState(initial = false)
+    val useAccelerometerFlow = context.settingsDataStore.data
+        .map { data: Settings -> data.useAccelerometer }
+    val useAcceleratometer by useAccelerometerFlow.collectAsState(initial = false)
+
+    // Set defaults for axis
+    LaunchedEffect(Unit) {
+        context.settingsDataStore.updateData { settings ->
+            if (settings.topAxis == 0 || settings.rightAxis == 0) {
+                settings.toBuilder()
+                    .setTopAxis(2)
+                    .setRightAxis(1)
+                    .build()
+            } else {
+                settings
+            }
+        }
+    }
+
+    var showAxisDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopBar(
@@ -67,37 +125,221 @@ fun MainPage(
         },
         modifier = modifier
     ) { padding ->
-        if (connectionState is ConnectionState.Connected) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(Dimens.PaddingScaffoldContent)
-            ) {
-                Text("Rotation:")
-                Text("X=${sensorData[0]}", color = Color.Red)
-                Text("Y=${sensorData[1]}", color = Color.Green)
-                Text("Z=${sensorData[2]}", color = Color.Blue)
-            }
-        } else {
-            Box (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = Dimens.PaddingScaffoldContent)
-            ) {
-                Button(
-                    onClick = openConnectionPage,
-                    modifier = Modifier.align(Alignment.Center)
+        when (connectionState) {
+            is ConnectionState.Connected -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(Dimens.PaddingScaffoldContent)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Link,
-                        contentDescription = null
+                    Column(modifier = Modifier.verticalScroll(state = rememberScrollState())) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            SettingsSwitch(
+                                text = "Use Absolute Rotation",
+                                description = "Use raw device rotation, Rotation Mode must be set to 'Replace' in the addon panel",
+                                checked = absoluteRotation,
+                                onCheckedChange = {
+                                    scope.launch {
+                                        context.settingsDataStore.updateData { currentSettings ->
+                                            currentSettings.toBuilder()
+                                                .setAbsoluteRotation(it)
+                                                .build()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                            IconButton(
+                                onClick = { showAxisDialog = true},
+                                enabled = absoluteRotation,
+                                modifier = Modifier
+                                    .padding(start = Dimens.PaddingDotDotDot)
+                                    .size(Dimens.SizeDotDotDot)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.MoreHoriz,
+                                    contentDescription = "Options",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
+                    }
+                    Box(
+                        contentAlignment = Alignment.BottomEnd,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            AnimatedVisibility(visible = useAcceleratometer || (!absoluteRotation)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Reset Transform",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(end = Dimens.PaddingBetweenMainButtons)
+                                    )
+                                    Button(
+                                        onClick = resetTransform,
+                                        shape = RoundedCornerShape(Dimens.RadiusMainButtons),
+                                        modifier = Modifier
+                                            .size(Dimens.SizeMainButtons)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Repeat,
+                                            contentDescription = null,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                            }
+                            AnimatedVisibility(visible = useAcceleratometer) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(top = Dimens.PaddingBetweenMainButtons)
+                                ) {
+                                    Text(
+                                        text = "Lock Translation (Hold)",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(end = Dimens.PaddingBetweenMainButtons)
+                                    )
+                                    HoldButton(
+                                        onPress = lockAccelerometer,
+                                        onRelease = unlockAccelerometer,
+                                        shape = RoundedCornerShape(Dimens.RadiusMainButtons),
+                                        modifier = Modifier
+                                            .size(Dimens.SizeMainButtons)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.ControlCamera,
+                                            contentDescription = null,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                            }
+                            AnimatedVisibility(visible = !absoluteRotation) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(top = Dimens.PaddingBetweenMainButtons)
+                                ) {
+                                    Text(
+                                        text = "Lock Rotation (Hold)",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(end = Dimens.PaddingBetweenMainButtons)
+                                    )
+                                    HoldButton(
+                                        onPress = lockGyroscope,
+                                        onRelease = unlockGyroscope,
+                                        shape = RoundedCornerShape(Dimens.RadiusMainButtons),
+                                        modifier = Modifier
+                                            .size(Dimens.SizeMainButtons)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.FlipCameraAndroid,
+                                            contentDescription = null,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                AnimatedVisibility(visible = showAxisDialog) {
+                    AxisDialog(
+                        onDismissRequest = { showAxisDialog = false }
                     )
-                    Box(Modifier.size(Dimens.PaddingButtonIcon))
-                    Text("Connect to addon")
                 }
             }
+
+            is ConnectionState.Connecting -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            else -> {
+                Box (
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = Dimens.PaddingScaffoldContent)
+                ) {
+                    Button(
+                        onClick = openConnectionPage,
+                        modifier = Modifier.align(Alignment.Center)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Link,
+                            contentDescription = null
+                        )
+                        Box(Modifier.size(Dimens.PaddingButtonIcon))
+                        Text("Connect to addon")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun HoldButton(
+    onPress: () -> Unit,
+    onRelease: () -> Unit,
+    shape: Shape,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit = {}
+) {
+    val interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    var pressed by remember { mutableStateOf(false) }
+
+    Button(
+        onClick = {},
+        shape = shape,
+        interactionSource = interactionSource,
+        modifier = modifier.pointerInteropFilter { motionEvent ->
+            when (motionEvent.action) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    pressed = true
+                    onPress()
+                    true
+                }
+
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    pressed = false
+                    onRelease()
+                    true
+                }
+
+                else -> false
+            }
+        }
+    ) {
+        content()
+    }
+
+    LaunchedEffect(pressed) {
+        if (pressed) {
+            interactionSource.emit(PressInteraction.Press(Offset.Zero))
+        } else {
+            interactionSource.emit(PressInteraction.Release(PressInteraction.Press(Offset.Zero)))
         }
     }
 }
@@ -198,9 +440,13 @@ fun MainPagePreview() {
     MainPage(
         openSettingsPage = {},
         openConnectionPage = {},
-        //connectionState = ConnectionState.Connected("127.0.0.1"),
-        connectionState = ConnectionState.Disconnected,
-        onDisconnect = {},
-        sensorData = floatArrayOf(0f, 0f, 0f)
+        connectionState = ConnectionState.Connected("127.0.0.1"),
+        //connectionState = ConnectionState.Disconnected,
+        resetTransform = {},
+        lockGyroscope = {},
+        lockAccelerometer = {},
+        unlockGyroscope = {},
+        unlockAccelerometer = {},
+        onDisconnect = {}
     )
 }

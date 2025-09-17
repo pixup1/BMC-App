@@ -39,10 +39,10 @@ fun BmcApp(
     val navController = rememberNavController()
 
     val bmcUiState by bmcViewModel.uiState.collectAsState()
-    val sensorData by bmcViewModel.sensorData.collectAsState()
 
     val connectionManager = ConnectionManager(context, bmcViewModel = bmcViewModel)
     val dataManager = DataManager(context, scope, connectionManager)
+    connectionManager.setOnConnectCallback { dataManager.resetTransform() }
 
     BlenderMotionControlTheme {
         NavHost(
@@ -56,10 +56,12 @@ fun BmcApp(
                     openSettingsPage = { navController.navigate("settings") },
                     openConnectionPage = { navController.navigate("connection") },
                     connectionState = bmcUiState.connectionState,
-                    onDisconnect = {
-                        connectionManager.disconnect()
-                    },
-                    sensorData = sensorData
+                    resetTransform = { dataManager.resetTransform()},
+                    lockAccelerometer = { dataManager.lockAccelerometer() },
+                    lockGyroscope = { dataManager.lockGyroscope() },
+                    unlockAccelerometer = { dataManager.unlockAccelerometer() },
+                    unlockGyroscope = { dataManager.unlockGyroscope() },
+                    onDisconnect = { connectionManager.disconnect() }
                 )
             }
             composable(

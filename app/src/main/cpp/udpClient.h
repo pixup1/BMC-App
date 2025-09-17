@@ -42,7 +42,7 @@ public:
 private:
     JavaVM* jvm;
     jobject cm;
-    std::function<void(int)> setUiConnectionState;
+    std::function<void(int)> updateConnectionState;
     int sock;
     std::string host;
     sockaddr_in server{};

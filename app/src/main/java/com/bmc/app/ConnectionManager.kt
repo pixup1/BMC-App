@@ -7,7 +7,9 @@ import android.provider.Settings
 
 class ConnectionManager(
     private val context: Context,
-    val bmcViewModel: BmcViewModel // Same ViewModel instance as in the UI
+    val bmcViewModel: BmcViewModel, // Same ViewModel instance as in the UI
+    var onConnect: () -> Unit = {},
+    val onDisconnect: () -> Unit = {}
 ) {
     // Native functions for use by Kotlin
     private external fun connectToHost(address: String, device: String)
@@ -28,6 +30,10 @@ class ConnectionManager(
         }
     }
 
+    fun setOnConnectCallback(onConnect: () -> Unit) {
+        this.onConnect = onConnect
+    }
+
     companion object {
         init {
             System.loadLibrary("bmc-cpp")
@@ -35,11 +41,20 @@ class ConnectionManager(
     }
 
     // Kotlin functions for use by C++
-    fun setUiConnectionState(state: Int, host: String = "host") {
+    @Suppress("unused")
+    fun updateConnectionState(state: Int, host: String = "host") {
         when (state) {
-            0 -> bmcViewModel.updateConnectionState(ConnectionState.Disconnected)
-            1 -> bmcViewModel.updateConnectionState(ConnectionState.Connecting(host))
-            2 -> bmcViewModel.updateConnectionState(ConnectionState.Connected(host))
+            0 -> {
+                bmcViewModel.setConnectionState(ConnectionState.Disconnected)
+                onDisconnect()
+            }
+            1 -> {
+                bmcViewModel.setConnectionState(ConnectionState.Connecting(host))
+            }
+            2 -> {
+                bmcViewModel.setConnectionState(ConnectionState.Connected(host))
+                onConnect()
+            }
             else -> throw IllegalArgumentException("Invalid state value: $state")
         }
     }

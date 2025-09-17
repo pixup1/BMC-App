@@ -9,10 +9,10 @@ udpClient::udpClient(std::string server_ip, int server_port, std::string device,
     env->GetJavaVM(&this->jvm);
     this->cm = cm;
 
-    // Create lambda to call setUiConnectionState on the ConnectionManager instance
+    // Create lambda to call updateConnectionState on the ConnectionManager instance
     jclass cls = env->GetObjectClass(this->cm);
-    jmethodID mid = env->GetMethodID(cls, "setUiConnectionState", "(ILjava/lang/String;)V");
-    this->setUiConnectionState = [=](int state) {
+    jmethodID mid = env->GetMethodID(cls, "updateConnectionState", "(ILjava/lang/String;)V");
+    this->updateConnectionState = [=](int state) {
         JNIEnv *threadEnv = nullptr;
         jint status = this->jvm->GetEnv((void **) &threadEnv, JNI_VERSION_1_6);
 
@@ -100,7 +100,7 @@ void udpClient::stop() {
     this->connected = false;
     this->sent_messages.clear();
     __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "   changing connection state...");
-    this->setUiConnectionState(0);
+    this->updateConnectionState(0);
 }
 
 void udpClient::maintainConnection() {
@@ -142,7 +142,7 @@ void udpClient::listen() {
         } else if (type == "ERR") {
             if (rest == "Not connected" and this->connected) {
                 this->connected = false;
-                this->setUiConnectionState(1);
+                this->updateConnectionState(1);
                 this->sent_messages.clear();
             }
         } else {
@@ -177,7 +177,7 @@ void udpClient::checkTimeouts() {
             std::thread([this]() { disconnect(); }).detach();
         } else if (this->failed_pings >= FAILED_PINGS_DISCONNECT and this->connected) {
             this->connected = false;
-            this->setUiConnectionState(1);
+            this->updateConnectionState(1);
             this->sent_messages.clear();
         }
 
@@ -222,7 +222,7 @@ void udpClient::sendData(std::string data) {
 void udpClient::connect() {
     __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "udpClient connecting...");
 
-    this->setUiConnectionState(1);
+    this->updateConnectionState(1);
 
     __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "UI connection state set");
 
@@ -231,11 +231,11 @@ void udpClient::connect() {
     this->send("CONNECT", msg, true);
 }
 
-void udpClient::handleConnectReply(std::string msg) { //TODO: check failed connections
+void udpClient::handleConnectReply(std::string msg) {
     if (msg == "Connected") {
         this->connected = true;
         this->failed_connections = 0;
-        this->setUiConnectionState(2);
+        this->updateConnectionState(2);
 
         // Delete any pending CONNECT messages
         this->sent_messages.erase(
