@@ -19,6 +19,9 @@ operator fun Quaternion.times(o: Quaternion): Quaternion =
         w*o.z + x*o.y - y*o.x + z*o.w
     )
 
+operator fun Quaternion.times(s: Double) =
+    Quaternion(w * s, x * s, y * s, z * s)
+
 fun Quaternion.conjugate() = Quaternion(w, -x, -y, -z)
 
 fun Quaternion.normalize(): Quaternion {
@@ -32,6 +35,8 @@ fun Quaternion.rotate(v: Vector3): Vector3 {
     val res = this * qVec * qInv
     return Vector3(res.x, res.y, res.z)
 }
+
+fun Quaternion.toString() = "($w, $x, $y, $z)"
 
 fun Quaternion.toArray() = arrayOf(w, x, y, z)
 

@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.util.Log
 import com.bmc.app.models.Settings
 import com.bmc.app.ui.settingsDataStore
 import kotlinx.coroutines.CoroutineScope
@@ -142,75 +143,59 @@ class DataManager(context: Context, scope: CoroutineScope, connectionManager: Co
         resetRotation()
     }
 
-    fun getAbsoluteAxisRotation(): Quaternion {
+    fun getAbsoluteAxisRotation(): Quaternion { //TODO: add a way to rotate around the Z axis in absolute mode
         val top = currentSettings.topAxis
         val right = currentSettings.rightAxis
 
-        if (top < 1 || top > 6 || right < 1 || right > 6 || top % 3 == right) {
+        if (top < 1 || top > 6 || right < 1 || right > 6 || top % 3 == right % 3) {
             return Quaternion(1.0, 0.0, 0.0, 0.0)
         }
 
         val topVector = getAxisVector(top)
-        var rightVector = getAxisVector(right)
-
+        val rightVector = getAxisVector(right)
         val frontVector = rightVector.cross(topVector).normalize()
-        rightVector = topVector.cross(frontVector).normalize()
 
         return createRotationFromAxes(rightVector, topVector, frontVector)
     }
 
     private fun getAxisVector(axis: Int): Vector3 {
         return when (axis) {
-            1 -> Vector3(1.0, 0.0, 0.0)  // X
-            2 -> Vector3(0.0, 1.0, 0.0)  // Y
-            3 -> Vector3(0.0, 0.0, 1.0)  // Z
-            4 -> Vector3(-1.0, 0.0, 0.0) // -X
-            5 -> Vector3(0.0, -1.0, 0.0) // -Y
-            6 -> Vector3(0.0, 0.0, -1.0) // -Z
-            else -> Vector3(0.0, 1.0, 0.0) // Par défaut, Y
+            1 -> Vector3(1.0, 0.0, 0.0)
+            2 -> Vector3(0.0, 1.0, 0.0)
+            3 -> Vector3(0.0, 0.0, 1.0)
+            4 -> Vector3(-1.0, 0.0, 0.0)
+            5 -> Vector3(0.0, -1.0, 0.0)
+            6 -> Vector3(0.0, 0.0, -1.0)
+            else -> Vector3(0.0, 1.0, 0.0)
         }
     }
 
-    private fun createRotationFromAxes(right: Vector3, top: Vector3, front: Vector3): Quaternion { //ngl I barely understand what this does
+    private fun createRotationFromAxes(right: Vector3, top: Vector3, front: Vector3): Quaternion {
         val m00 = right.x; val m01 = top.x; val m02 = front.x
         val m10 = right.y; val m11 = top.y; val m12 = front.y
         val m20 = right.z; val m21 = top.z; val m22 = front.z
 
-        val trace = m00 + m11 + m22
+        var t: Double
+        var q: Quaternion
 
-        return if (trace > 0) {
-            val s = 0.5 / sqrt(trace + 1.0)
-            Quaternion(
-                0.25 / s,
-                (m21 - m12) * s,
-                (m02 - m20) * s,
-                (m10 - m01) * s
-            )
-        } else if (m00 > m11 && m00 > m22) {
-            val s = 2.0 * sqrt(1.0 + m00 - m11 - m22)
-            Quaternion(
-                (m21 - m12) / s,
-                0.25 * s,
-                (m01 + m10) / s,
-                (m02 + m20) / s
-            )
-        } else if (m11 > m22) {
-            val s = 2.0 * sqrt(1.0 + m11 - m00 - m22)
-            Quaternion(
-                (m02 - m20) / s,
-                (m01 + m10) / s,
-                0.25 * s,
-                (m12 + m21) / s
-            )
+        if (m22 < 0) {
+            if (m00 > m11) {
+                t = 1 + m00 - m11 - m22;
+                q = Quaternion(m12-m21, t, m01+m10, m20+m02);
+            } else {
+                t = 1 - m00 + m11 - m22;
+                q = Quaternion(m20-m02, m01+m10, t, m12+m21);
+            }
         } else {
-            val s = 2.0 * sqrt(1.0 + m22 - m00 - m11)
-            Quaternion(
-                (m10 - m01) / s,
-                (m02 + m20) / s,
-                (m12 + m21) / s,
-                0.25 * s
-            )
+            if (m00 < -m11) {
+                t = 1 - m00 - m11 + m22;
+                q = Quaternion(m01-m10, m20+m02, m12+m21, t);
+            } else {
+                t = 1 + m00 + m11 + m22;
+                q = Quaternion(t, m12-m21, m20-m02, m01-m10);
+            }
         }
+        return q * (0.5 / sqrt(t))
     }
 
     init {

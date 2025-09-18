@@ -69,14 +69,14 @@ fun AxisDialog(
         ) {
             Column {
                 TopBar(
-                    title = "Pick Axis",
+                    title = "Pick Axes",
                     rightButton = TopBarButton(
                         icon = Icons.Rounded.Close,
                         description = "Close dialog",
                         onClick = onDismissRequest
                     )
                 )
-                Spacer(modifier = Modifier.size(Dimens.SizeAxisDialogArrows / 3))
+                Spacer(modifier = Modifier.size(Dimens.SizeAxisDialogArrows / 4))
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -217,7 +217,7 @@ fun AxisDialog(
                     }
                 }
                 Text(
-                    text = "Third axis will be inferred.",
+                    text = "Make the axes match the local space of the object.\n\nThird axis will be inferred.",
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(Dimens.SizeAxisDialogArrows / 2)
