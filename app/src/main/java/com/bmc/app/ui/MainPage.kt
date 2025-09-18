@@ -52,10 +52,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import androidx.core.content.ContextCompat.getString
+import com.bmc.app.R
 import com.bmc.app.ui.components.TopBar
 import com.bmc.app.ui.components.TopBarButton
 import com.bmc.app.models.ConnectionState
@@ -107,11 +111,11 @@ fun MainPage(
     Scaffold(
         topBar = {
             TopBar(
-                title = "BMC",
+                title = stringResource(R.string.title_activity_main),
                 modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
                 rightButton = TopBarButton(
                     icon = Icons.Filled.Settings,
-                    description = "Settings",
+                    description = stringResource(R.string.settings),
                     onClick = openSettingsPage
                 )
             )
@@ -138,8 +142,8 @@ fun MainPage(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             SettingsSwitch(
-                                text = "Use Absolute Rotation",
-                                description = "Use raw device rotation, Rotation Mode must be set to 'Replace' in the addon panel",
+                                text = stringResource(R.string.use_absolute_rotation),
+                                description = stringResource(R.string.use_absolute_rotation_description),
                                 checked = absoluteRotation,
                                 onCheckedChange = {
                                     scope.launch {
@@ -161,7 +165,7 @@ fun MainPage(
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.MoreHoriz,
-                                    contentDescription = "Options",
+                                    contentDescription = stringResource(R.string.options),
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }
@@ -179,10 +183,12 @@ fun MainPage(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Reset Transform",
+                                        text = stringResource(R.string.reset_transform),
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Right,
                                         modifier = Modifier
+                                            .weight(1f)
                                             .padding(end = Dimens.PaddingBetweenMainButtons)
                                     )
                                     Button(
@@ -205,10 +211,12 @@ fun MainPage(
                                     modifier = Modifier.padding(top = Dimens.PaddingBetweenMainButtons)
                                 ) {
                                     Text(
-                                        text = "Lock Translation (Hold)",
+                                        text = stringResource(R.string.lock_translation),
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Right,
                                         modifier = Modifier
+                                            .weight(1f)
                                             .padding(end = Dimens.PaddingBetweenMainButtons)
                                     )
                                     HoldButton(
@@ -232,10 +240,12 @@ fun MainPage(
                                     modifier = Modifier.padding(top = Dimens.PaddingBetweenMainButtons)
                                 ) {
                                     Text(
-                                        text = "Lock Rotation (Hold)",
+                                        text = stringResource(R.string.lock_rotation),
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Right,
                                         modifier = Modifier
+                                            .weight(1f)
                                             .padding(end = Dimens.PaddingBetweenMainButtons)
                                     )
                                     HoldButton(
@@ -290,7 +300,7 @@ fun MainPage(
                             contentDescription = null
                         )
                         Box(Modifier.size(Dimens.PaddingButtonIcon))
-                        Text("Connect to addon")
+                        Text(stringResource(R.string.connect_addon))
                     }
                 }
             }
@@ -397,7 +407,7 @@ private fun BottomBar(
                         Icon(
                             imageVector = Icons.Rounded.Clear,
                             tint = Color.Black,
-                            contentDescription = "Disconnect",
+                            contentDescription = stringResource(R.string.disconnect),
                             modifier = Modifier.size(Dimens.HeightBottomBarContent / 50.dp * iconButtonSize)
                         )
                     }
@@ -410,7 +420,7 @@ private fun BottomBar(
     when (connectionState) {
         is ConnectionState.Connected -> {
             ConnectionStatePill(
-                text = "Connected to ${connectionState.host}",
+                text = stringResource(R.string.connected_to, connectionState.host),
                 color = Color.Green,
                 showDisconnectButton = true
             )
@@ -418,7 +428,7 @@ private fun BottomBar(
 
         is ConnectionState.Connecting -> {
             ConnectionStatePill(
-                text = "Connecting to host...",
+                text = stringResource(R.string.connecting),
                 color = Color.Yellow,
                 showDisconnectButton = true
             )
@@ -426,7 +436,7 @@ private fun BottomBar(
 
         is ConnectionState.Disconnected -> {
             ConnectionStatePill(
-                text = "Disconnected",
+                text = stringResource(R.string.disconnected),
                 color = Color.Red,
                 showDisconnectButton = false
             )

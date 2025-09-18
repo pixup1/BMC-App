@@ -22,4 +22,5 @@ object Dimens {
     val RadiusDialog = 24.dp
     val SizeAxisDialogPhone = 140.dp
     val SizeAxisDialogArrows = 90.dp
+    val PaddingSettingsDescription = 2.dp
 }

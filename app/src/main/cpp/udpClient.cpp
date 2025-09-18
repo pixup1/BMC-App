@@ -17,26 +17,20 @@ udpClient::udpClient(std::string server_ip, int server_port, std::string device,
         jint status = this->jvm->GetEnv((void **) &threadEnv, JNI_VERSION_1_6);
 
         // Each thread needs a different JNIEnv so we can't use the same one as lib.cpp
-        __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "      getting JNIEnv for thread...");
         this->jvm->AttachCurrentThread(&threadEnv, nullptr);
 
-        __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "      converting to Java types...");
         jint jstate = (jint) state;
         jstring jhost = threadEnv->NewStringUTF(this->host.c_str());
 
-        __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "      calling method...");
         threadEnv->CallVoidMethod(this->cm, mid, jstate, jhost);
 
         if (status == JNI_EDETACHED) { // Only detach if we weren't attached before
-            __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "      detaching thread...");
             jvm->DetachCurrentThread();
         }
-
-        __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "      UI state changed");
     };
 
     this->connected = false;
-    this->host = server_ip;
+    this->host = server_ip; // This will be updated when we connect
 
     this->server.sin_family = AF_INET;
     this->server.sin_port = htons(server_port);
@@ -128,7 +122,7 @@ void udpClient::listen() {
         std::string type, rest;
 
         if (pos == std::string::npos) {
-            type = msg;      // no space found
+            type = msg;
             rest = "";
         } else {
             type = msg.substr(0, pos);
@@ -232,9 +226,21 @@ void udpClient::connect() {
 }
 
 void udpClient::handleConnectReply(std::string msg) {
-    if (msg == "Connected") {
+    size_t pos = msg.find(' ');
+    std::string type, rest;
+
+    if (pos == std::string::npos) {
+        type = msg;
+        rest = "";
+    } else {
+        type = msg.substr(0, pos);
+        rest = msg.substr(pos + 1);
+    }
+
+    if (type == "Connected") {
         this->connected = true;
         this->failed_connections = 0;
+        this->host = rest;
         this->updateConnectionState(2);
 
         // Delete any pending CONNECT messages

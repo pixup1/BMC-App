@@ -34,10 +34,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.bmc.app.R
 import com.bmc.app.models.Settings
 import com.bmc.app.ui.components.TopBar
 import com.bmc.app.ui.components.TopBarButton
@@ -69,7 +71,7 @@ fun AxisDialog(
         ) {
             Column {
                 TopBar(
-                    title = "Pick Axes",
+                    title = stringResource(R.string.pick_axes),
                     rightButton = TopBarButton(
                         icon = Icons.Rounded.Close,
                         description = "Close dialog",
@@ -105,15 +107,7 @@ fun AxisDialog(
                                 modifier = Modifier.padding(2.dp)
                             ) {
                                 Text(
-                                    text = when (topAxis) {
-                                        1 -> " X+"
-                                        2 -> " Y+"
-                                        3 -> " Z+"
-                                        4 -> " X-"
-                                        5 -> " Y-"
-                                        6 -> " Z-"
-                                        else -> " ?"
-                                    },
+                                    text = " " + getAxisName(topAxis),
                                     color = Color.Black,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -168,7 +162,8 @@ fun AxisDialog(
                         Surface(
                             color = getAxisColor(rightAxis),
                             shape = RoundedCornerShape(6.dp),
-                            modifier = Modifier.padding(4.dp)
+                            modifier = Modifier
+                                .padding(4.dp)
                                 .offset(x = -Dimens.SizeAxisDialogPhone / 15, y = 0.dp)
                                 .clickable(onClick = {
                                     rightMenuOpen = !rightMenuOpen
@@ -179,15 +174,7 @@ fun AxisDialog(
                                 modifier = Modifier.padding(2.dp)
                             ) {
                                 Text(
-                                    text = when (rightAxis) {
-                                        1 -> " X+"
-                                        2 -> " Y+"
-                                        3 -> " Z+"
-                                        4 -> " X-"
-                                        5 -> " Y-"
-                                        6 -> " Z-"
-                                        else -> " ?"
-                                    },
+                                    text = " " + getAxisName(rightAxis),
                                     color = Color.Black,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -217,13 +204,25 @@ fun AxisDialog(
                     }
                 }
                 Text(
-                    text = "Make the axes match the local space of the object.\n\nThird axis will be inferred.",
+                    text = stringResource(R.string.axis_dialog_description),
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(Dimens.SizeAxisDialogArrows / 2)
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun getAxisName(axis: Int): String {
+    return when (axis) {1 -> stringResource(R.string.x_plus)
+        2 -> stringResource(R.string.y_plus)
+        3 -> stringResource(R.string.z_plus)
+        4 -> stringResource(R.string.x_minus)
+        5 -> stringResource(R.string.y_minus)
+        6 -> stringResource(R.string.z_minus)
+        else -> stringResource(R.string.unknown_axis)
     }
 }
 
@@ -240,31 +239,31 @@ private fun AxisDropdownMenu(
     ) {
         if (otherAxis != 1 && otherAxis != 4) {
             DropdownMenuItem(
-                text = { Text(" X+") },
+                text = { Text(getAxisName(1)) },
                 onClick = { onSelect(1) }
             )
             DropdownMenuItem(
-                text = { Text(" X-") },
+                text = { Text(getAxisName(4)) },
                 onClick = { onSelect(4) }
             )
         }
         if (otherAxis != 2 && otherAxis != 5) {
             DropdownMenuItem(
-                text = { Text(" Y+") },
+                text = { Text(getAxisName(2)) },
                 onClick = { onSelect(2) }
             )
             DropdownMenuItem(
-                text = { Text(" Y-") },
+                text = { Text(getAxisName(5)) },
                 onClick = { onSelect(5) }
             )
         }
         if (otherAxis != 3 && otherAxis != 6) {
             DropdownMenuItem(
-                text = { Text(" Z+") },
+                text = { Text(getAxisName(3)) },
                 onClick = { onSelect(3) }
             )
             DropdownMenuItem(
-                text = { Text(" Z-") },
+                text = { Text(getAxisName(6)) },
                 onClick = { onSelect(6) }
             )
         }

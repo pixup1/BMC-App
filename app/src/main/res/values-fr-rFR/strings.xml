@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="use_absolute_rotation">Utiliser la rotation absolue</string>
+    <string name="use_absolute_rotation_description">Rotation directe de l\'appareil, le mode de rotation doit être défini sur \"Remplacer\" dans les paramètres de l\'extension</string>
+    <string name="options">Options</string>
+    <string name="lock_translation">Verrouiller le déplacement (Maintenir)</string>
+    <string name="lock_rotation">Verrouiller la rotation (Maintenir)</string>
+    <string name="connect_addon">Connecter à l\'extension</string>
+    <string name="disconnect">Déconnecter</string>
+    <string name="reset_transform">Réinitialiser la transformation</string>
+    <string name="connected_to">Connecté à %1$s</string>
+    <string name="connecting">Connexion…</string>
+    <string name="disconnected">Déconnecté</string>
+    <string name="pick_axes">Choisir les axes</string>
+    <string name="unknown_axis">\?</string>
+    <string name="axis_dialog_description">Faites correspondre les axes à ceux de l\'espace local de l\'objet.  Le troisième axe sera déduit.</string>
+    <string name="camera_permission_needed">La permission d\'accéder à la caméra est nécessaire pour scanner les codes QR</string>
+    <string name="scan_qr_code">Scannez le code QR de l\'extension :</string>
+    <string name="camera_permission_not_granted">Persmission de caméra non accordée</string>
+    <string name="or_enter_host_address">Ou entrez l\'adresse de l\'hôte manuellement :</string>
+    <string name="enter_host_address">Entrez l\'adresse de l\'hôte :</string>
+    <string name="recent_connections">Connexions récentes :</string>
+    <string name="please_scan_bmc_qr_code">Veuillez scanner un code QR généré par l\'extension BMC</string>
+    <string name="invalid_address_format">Format d\'adresse invalide</string>
+    <string name="ip_port">IP:Port</string>
+    <string name="forget_host">Oublier l\'hôte</string>
+    <string name="settings">Paramètres</string>
+    <string name="close_settings">Quitter les paramètres</string>
+    <string name="use_arcore">Utiliser ARCore</string>
+    <string name="use_arcore_description">Tracking de caméra en temps réel (précis, nécessite ARCore)</string>
+    <string name="use_accelerometer">Utiliser l\'accéléromètre</string>
+    <string name="use_accelerometer_description">Accéléromètre de l\'appareil utilisé pour les données de position (très peu précis)</string>
+    <string name="accelerometer_speed_cutoff">Vitesse de coupure de l\'accéléromètre</string>
+    <string name="accelerometer_speed_cutoff_description">Des valeurs plus élevées réduiront le \"drift\" mais aussi les petits mouvements précis</string>
+</resources>

@@ -19,7 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.bmc.app.R
 import com.bmc.app.models.Settings
 import com.bmc.app.ui.components.TopBar
 import com.bmc.app.ui.components.TopBarButton
@@ -37,6 +39,9 @@ fun SettingsPage(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val useArcoreFlow = context.settingsDataStore.data
+        .map { data: Settings -> data.useArcore }
+    val useArcore by useArcoreFlow.collectAsState(initial = false)
     val useAccelerometerFlow = context.settingsDataStore.data
         .map { data: Settings -> data.useAccelerometer }
     val useAcceleratometer by useAccelerometerFlow.collectAsState(initial = false)
@@ -47,11 +52,11 @@ fun SettingsPage(
     Scaffold(
         topBar = {
             TopBar(
-                title = "Settings",
+                title = stringResource(R.string.settings),
                 modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
                 leftButton = TopBarButton(
                     icon = Icons.AutoMirrored.Filled.ArrowBack,
-                    description = "Close settings",
+                    description = stringResource(R.string.close_settings),
                     onClick = closeSettings
                 )
             )
@@ -66,27 +71,48 @@ fun SettingsPage(
                 .verticalScroll(rememberScrollState())
         ) {
             SettingsSwitch(
-                text = "Use Accelerometer",
-                description = "Use device accelerometer for position data (imprecise)",
-                checked = useAcceleratometer,
+                text = stringResource(R.string.use_arcore),
+                description = stringResource(R.string.use_arcore_description),
+                checked = useArcore,
                 onCheckedChange = {
                     scope.launch {
                         context.settingsDataStore.updateData { currentSettings ->
                             currentSettings.toBuilder()
-                                .setUseAccelerometer(it)
+                                .setUseArcore(it)
                                 .build()
                         }
                     }
                 }
             )
             AnimatedVisibility(
-                visible = useAcceleratometer
+                visible = !useArcore
+            ) {
+                Column {
+                    SettingsItemsDivider()
+                    SettingsSwitch(
+                        text = stringResource(R.string.use_accelerometer),
+                        description = stringResource(R.string.use_accelerometer_description),
+                        checked = useAcceleratometer,
+                        onCheckedChange = {
+                            scope.launch {
+                                context.settingsDataStore.updateData { currentSettings ->
+                                    currentSettings.toBuilder()
+                                        .setUseAccelerometer(it)
+                                        .build()
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+            AnimatedVisibility(
+                visible = useAcceleratometer && !useArcore
             ) {
                 Column {
                     SettingsItemsDivider()
                     SettingsSlider(
-                        text = "Accelerometer Speed Cutoff",
-                        description = "Higher values will reduce drift but also fine movement",
+                        text = stringResource(R.string.accelerometer_speed_cutoff),
+                        description = stringResource(R.string.accelerometer_speed_cutoff_description),
                         value = accelerometerCutoff,
                         valueRange = 0.0f..5.0f,
                         onValueChange = {

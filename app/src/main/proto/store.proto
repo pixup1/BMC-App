@@ -13,4 +13,5 @@ message Settings {
   bool absolute_rotation = 3;
   int32 top_axis = 4; // Can take 6 values : 1=X+, 2=Y+, 3=Z+, 4=X-, 5=Y-, 6=Z-
   int32 right_axis = 5;
+  bool use_arcore = 6;
 }

@@ -39,7 +39,7 @@ class DataManager(context: Context, scope: CoroutineScope, connectionManager: Co
     private var lockPosition = Vector3(0.0, 0.0, 0.0)
     private var lockRotation = Quaternion(1.0, 0.0, 0.0, 0.0)
 
-    private var inverseRotation = Quaternion(1.0, 0.0, 0.0, 0.0) //TODO: make up always be up and make rotation match translation (edit: this may be fixed now ?)
+    private var inverseRotation = Quaternion(1.0, 0.0, 0.0, 0.0)
     private var absoluteAxisRotation = getAbsoluteAxisRotation()
 
     private val gyroListener = object : SensorEventListener {

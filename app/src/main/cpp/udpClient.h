@@ -45,6 +45,7 @@ private:
     std::function<void(int)> updateConnectionState;
     int sock;
     std::string host;
+    std::string hostname;
     sockaddr_in server{};
     std::atomic<bool> running;
     std::thread conn_thread;
