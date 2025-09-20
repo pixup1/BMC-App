@@ -32,4 +32,5 @@
     <string name="use_accelerometer_description">Accéléromètre de l\'appareil utilisé pour les données de position (très peu précis)</string>
     <string name="accelerometer_speed_cutoff">Vitesse de coupure de l\'accéléromètre</string>
     <string name="accelerometer_speed_cutoff_description">Des valeurs plus élevées réduiront le \"drift\" mais aussi les petits mouvements précis</string>
+    <string name="unimplemented_feature">Cette fonctionnalité n\'a pas encore été implémentée.</string>
 </resources>

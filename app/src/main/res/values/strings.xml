@@ -39,4 +39,5 @@
     <string name="use_accelerometer_description">Device accelerometer for position data (very imprecise)</string>
     <string name="accelerometer_speed_cutoff">Accelerometer Speed Cutoff</string>
     <string name="accelerometer_speed_cutoff_description">Higher values will reduce drift but also fine movement</string>
+    <string name="unimplemented_feature">This feature has not been implemented yet.</string>
 </resources>

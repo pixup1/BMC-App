@@ -13,9 +13,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +41,7 @@ fun SettingsPage(
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val useArcoreFlow = context.settingsDataStore.data
         .map { data: Settings -> data.useArcore }
@@ -61,6 +65,9 @@ fun SettingsPage(
                 )
             )
         },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         modifier = modifier
     ) { paddingValues ->
         Column(
@@ -70,17 +77,19 @@ fun SettingsPage(
                 .padding(Dimens.PaddingScaffoldContent)
                 .verticalScroll(rememberScrollState())
         ) {
+            val unimplementedMessage = stringResource(R.string.unimplemented_feature)
             SettingsSwitch(
                 text = stringResource(R.string.use_arcore),
                 description = stringResource(R.string.use_arcore_description),
-                checked = useArcore,
+                checked = false, //useArcore,
                 onCheckedChange = {
                     scope.launch {
-                        context.settingsDataStore.updateData { currentSettings ->
-                            currentSettings.toBuilder()
-                                .setUseArcore(it)
-                                .build()
-                        }
+                        snackbarHostState.showSnackbar(unimplementedMessage)
+//                        context.settingsDataStore.updateData { currentSettings ->
+//                            currentSettings.toBuilder()
+//                                .setUseArcore(it)
+//                                .build()
+//                        }
                     }
                 }
             )
