@@ -7,6 +7,8 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
 import com.bmc.app.models.Settings
+import com.bmc.app.ui.BmcUiState
+import com.bmc.app.ui.BmcViewModel
 import com.bmc.app.ui.settingsDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,7 +16,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
-class DataManager(context: Context, scope: CoroutineScope, connectionManager: ConnectionManager) {
+class DataManager(
+    context: Context,
+    bmcViewModel: BmcViewModel,
+    scope: CoroutineScope,
+    connectionManager: ConnectionManager
+) {
     private val settingsFlow = context.settingsDataStore.data
         .stateIn(
             scope = scope,
@@ -69,7 +76,9 @@ class DataManager(context: Context, scope: CoroutineScope, connectionManager: Co
 
             data += "}"
 
-            connectionManager.sendData(data)
+            if (!bmcViewModel.uiState.value.dataMuted) {
+                connectionManager.sendData(data)
+            }
         }
 
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

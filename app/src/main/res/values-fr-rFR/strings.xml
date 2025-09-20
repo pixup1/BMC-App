@@ -33,4 +33,6 @@
     <string name="accelerometer_speed_cutoff">Vitesse de coupure de l\'accéléromètre</string>
     <string name="accelerometer_speed_cutoff_description">Des valeurs plus élevées réduiront le \"drift\" mais aussi les petits mouvements précis</string>
     <string name="unimplemented_feature">Cette fonctionnalité n\'a pas encore été implémentée.</string>
+    <string name="mute">Couper les données</string>
+    <string name="mute_description">Arrêter temporairement d\'envoyer des données de mouvement</string>
 </resources>

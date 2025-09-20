@@ -41,8 +41,8 @@ fun BmcApp(
 
     val bmcUiState by bmcViewModel.uiState.collectAsState()
 
-    val connectionManager = ConnectionManager(context, bmcViewModel = bmcViewModel)
-    val dataManager = DataManager(context, scope, connectionManager)
+    val connectionManager = ConnectionManager(context, bmcViewModel)
+    val dataManager = DataManager(context, bmcViewModel, scope, connectionManager)
     connectionManager.setOnConnectCallback { dataManager.resetTransform() }
 
     BlenderMotionControlTheme {
@@ -62,6 +62,8 @@ fun BmcApp(
                     lockGyroscope = { dataManager.lockGyroscope() },
                     unlockAccelerometer = { dataManager.unlockAccelerometer() },
                     unlockGyroscope = { dataManager.unlockGyroscope() },
+                    dataMuted = bmcUiState.dataMuted,
+                    onDataMutedChange = { bmcViewModel.setDataMuted(it) },
                     onDisconnect = { connectionManager.disconnect() }
                 )
             }

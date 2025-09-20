@@ -20,4 +20,8 @@ class BmcViewModel(app: Application) : AndroidViewModel(app) {
     fun setConnectionState(newState: ConnectionState) {
         _uiState.value = _uiState.value.copy(connectionState = newState)
     }
+
+    fun setDataMuted(muted: Boolean) {
+        _uiState.value = _uiState.value.copy(dataMuted = muted)
+    }
 }

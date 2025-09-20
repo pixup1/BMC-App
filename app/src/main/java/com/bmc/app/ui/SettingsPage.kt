@@ -2,24 +2,33 @@ package com.bmc.app.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -52,6 +61,25 @@ fun SettingsPage(
     val accelerometerCutoffFlow = context.settingsDataStore.data
         .map { data: Settings -> data.accelerometerCutoff }
     val accelerometerCutoff by accelerometerCutoffFlow.collectAsState(initial = 1.0f)
+    val absoluteRotationFlow = context.settingsDataStore.data
+        .map { data: Settings -> data.absoluteRotation }
+    val absoluteRotation by absoluteRotationFlow.collectAsState(initial = false)
+
+    var showAxisDialog by remember { mutableStateOf(false) }
+
+    // Set defaults for axis
+    LaunchedEffect(Unit) {
+        context.settingsDataStore.updateData { settings ->
+            if (settings.topAxis == 0 || settings.rightAxis == 0) {
+                settings.toBuilder()
+                    .setTopAxis(2)
+                    .setRightAxis(1)
+                    .build()
+            } else {
+                settings
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -136,6 +164,44 @@ fun SettingsPage(
                     )
                 }
             }
+            SettingsItemsDivider()
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SettingsSwitch(
+                    text = stringResource(R.string.use_absolute_rotation),
+                    description = stringResource(R.string.use_absolute_rotation_description),
+                    checked = absoluteRotation,
+                    onCheckedChange = {
+                        scope.launch {
+                            context.settingsDataStore.updateData { currentSettings ->
+                                currentSettings.toBuilder()
+                                    .setAbsoluteRotation(it)
+                                    .build()
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(
+                    onClick = { showAxisDialog = true},
+                    enabled = absoluteRotation,
+                    modifier = Modifier
+                        .padding(start = Dimens.PaddingDotDotDot)
+                        .size(Dimens.SizeDotDotDot)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreHoriz,
+                        contentDescription = stringResource(R.string.options),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+        AnimatedVisibility(visible = showAxisDialog) {
+            AxisDialog(
+                onDismissRequest = { showAxisDialog = false }
+            )
         }
     }
 }

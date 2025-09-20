@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.ControlCamera
@@ -58,7 +57,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import androidx.core.content.ContextCompat.getString
 import com.bmc.app.R
 import com.bmc.app.ui.components.TopBar
 import com.bmc.app.ui.components.TopBarButton
@@ -67,7 +65,6 @@ import com.bmc.app.models.Settings
 import com.bmc.app.ui.components.SettingsSwitch
 import com.bmc.app.ui.theme.Dimens
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -81,32 +78,18 @@ fun MainPage(
     unlockGyroscope: () -> Unit,
     connectionState: ConnectionState,
     onDisconnect: () -> Unit,
+    dataMuted: Boolean = false,
+    onDataMutedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val useAccelerometerFlow = context.settingsDataStore.data
+        .map { data: Settings -> data.useAccelerometer }
+    val useAccelerometer by useAccelerometerFlow.collectAsState(initial = false)
     val absoluteRotationFlow = context.settingsDataStore.data
         .map { data: Settings -> data.absoluteRotation }
     val absoluteRotation by absoluteRotationFlow.collectAsState(initial = false)
-    val useAccelerometerFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.useAccelerometer }
-    val useAcceleratometer by useAccelerometerFlow.collectAsState(initial = false)
-
-    // Set defaults for axis
-    LaunchedEffect(Unit) {
-        context.settingsDataStore.updateData { settings ->
-            if (settings.topAxis == 0 || settings.rightAxis == 0) {
-                settings.toBuilder()
-                    .setTopAxis(2)
-                    .setRightAxis(1)
-                    .build()
-            } else {
-                settings
-            }
-        }
-    }
-
-    var showAxisDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -138,38 +121,14 @@ fun MainPage(
                         .padding(Dimens.PaddingScaffoldContent)
                 ) {
                     Column(modifier = Modifier.verticalScroll(state = rememberScrollState())) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            SettingsSwitch(
-                                text = stringResource(R.string.use_absolute_rotation),
-                                description = stringResource(R.string.use_absolute_rotation_description),
-                                checked = absoluteRotation,
-                                onCheckedChange = {
-                                    scope.launch {
-                                        context.settingsDataStore.updateData { currentSettings ->
-                                            currentSettings.toBuilder()
-                                                .setAbsoluteRotation(it)
-                                                .build()
-                                        }
-                                    }
-                                },
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(
-                                onClick = { showAxisDialog = true},
-                                enabled = absoluteRotation,
-                                modifier = Modifier
-                                    .padding(start = Dimens.PaddingDotDotDot)
-                                    .size(Dimens.SizeDotDotDot)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.MoreHoriz,
-                                    contentDescription = stringResource(R.string.options),
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                        SettingsSwitch(
+                            text = stringResource(R.string.mute),
+                            description = stringResource(R.string.mute_description),
+                            checked = dataMuted,
+                            onCheckedChange = {
+                                onDataMutedChange(it)
                             }
-                        }
+                        )
                     }
                     Box(
                         contentAlignment = Alignment.BottomEnd,
@@ -178,7 +137,7 @@ fun MainPage(
                         Column(
                             horizontalAlignment = Alignment.End
                         ) {
-                            AnimatedVisibility(visible = useAcceleratometer || (!absoluteRotation)) {
+                            AnimatedVisibility(visible = useAccelerometer || (!absoluteRotation)) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -205,7 +164,7 @@ fun MainPage(
                                     }
                                 }
                             }
-                            AnimatedVisibility(visible = useAcceleratometer) {
+                            AnimatedVisibility(visible = useAccelerometer) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(top = Dimens.PaddingBetweenMainButtons)
@@ -265,11 +224,6 @@ fun MainPage(
                             }
                         }
                     }
-                }
-                AnimatedVisibility(visible = showAxisDialog) {
-                    AxisDialog(
-                        onDismissRequest = { showAxisDialog = false }
-                    )
                 }
             }
 
@@ -457,6 +411,8 @@ fun MainPagePreview() {
         lockAccelerometer = {},
         unlockGyroscope = {},
         unlockAccelerometer = {},
+        dataMuted = false,
+        onDataMutedChange = {},
         onDisconnect = {}
     )
 }
