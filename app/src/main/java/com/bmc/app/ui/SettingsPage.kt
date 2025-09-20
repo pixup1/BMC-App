@@ -47,7 +47,7 @@ fun SettingsPage(
     val useAcceleratometer by useAccelerometerFlow.collectAsState(initial = false)
     val accelerometerCutoffFlow = context.settingsDataStore.data
         .map { data: Settings -> data.accelerometerCutoff }
-    val accelerometerCutoff by accelerometerCutoffFlow.collectAsState(initial = 1.0f) // TODO: find a way to define a default value other than 0 (why is protobuf like this ffs)
+    val accelerometerCutoff by accelerometerCutoffFlow.collectAsState(initial = 1.0f)
 
     Scaffold(
         topBar = {

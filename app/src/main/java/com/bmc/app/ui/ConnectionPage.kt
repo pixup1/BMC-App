@@ -101,7 +101,7 @@ fun ConnectionPage(
 
     fun connect(address: String) {
         onAddressSubmit(address)
-        scope.launch { //TODO: only do this if connection is successful
+        scope.launch {
             context.connectionPageDataStore.updateData { currentData ->
                 val updatedRecentHosts = listOf(address) + currentData.recentHostsList.filter { it != address }
                 currentData.toBuilder()
@@ -157,7 +157,7 @@ fun ConnectionPage(
                 ) {
                     if (hasCameraPermission) {
                         val pleaseMessage = stringResource(R.string.please_scan_bmc_qr_code)
-                        QrScanner(onQrCodeScanned = { //TODO: fix QrScanner
+                        QrScanner(onQrCodeScanned = {
                             try {
                                 connect(addressInput)
                             } catch (_: IllegalArgumentException) {

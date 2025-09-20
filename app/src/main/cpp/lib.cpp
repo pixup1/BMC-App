@@ -36,18 +36,15 @@ extern "C" JNIEXPORT void JNICALL Java_com_bmc_app_ConnectionManager_connectToHo
 extern "C" JNIEXPORT void JNICALL Java_com_bmc_app_ConnectionManager_disconnect(
         JNIEnv* env,
         jobject cm) {
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "calling disconnect()...");
     disconnect();
 }
 
 void disconnect() {
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "disconnect() started");
     if (client) {
-        __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "client found, stopping...");
         client->stop();
-        __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "deleting client...");
         delete client;
         client = nullptr;
+
         __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "disconnect done");
     }
 }

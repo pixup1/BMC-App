@@ -83,7 +83,7 @@ class DataManager(context: Context, scope: CoroutineScope, connectionManager: Co
             if (dataManager.currentSettings.useAccelerometer) {
                 val acc = event.values.clone()
                 val acceleration = Vector3(acc[0].toDouble(), acc[1].toDouble(), acc[2].toDouble())
-                val accelerationWorld = dataManager.rotation.rotate(acceleration) //TODO: apply inverse ? to sync location space with rotation space
+                val accelerationWorld = dataManager.rotation.rotate(acceleration)
 
                 val dt = if (lastTimestamp == 0L) 0.0 else (event.timestamp - lastTimestamp).toDouble() * 1e-9
                 lastTimestamp = event.timestamp
@@ -143,7 +143,7 @@ class DataManager(context: Context, scope: CoroutineScope, connectionManager: Co
         resetRotation()
     }
 
-    fun getAbsoluteAxisRotation(): Quaternion { //TODO: add a way to rotate around the Z axis in absolute mode
+    fun getAbsoluteAxisRotation(): Quaternion {
         val top = currentSettings.topAxis
         val right = currentSettings.rightAxis
 

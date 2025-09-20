@@ -73,27 +73,23 @@ udpClient::udpClient(std::string server_ip, int server_port, std::string device,
 }
 
 void udpClient::stop() {
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "   shutdown socket...");
     shutdown(this->sock, SHUT_RDWR);
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "   joining listen thread...");
+
     this->running = false;
     if (this->listen_thread.joinable()) {
         this->listen_thread.join();
     }
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "   joining conn thread...");
     if (this->conn_thread.joinable()) {
         this->conn_thread.join();
     }
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "   joining timeout thread...");
     if (this->timeout_thread.joinable()) {
         this->timeout_thread.join();
     }
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "   closing socket...");
+
     close(this->sock);
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "   doing stuff...");
+
     this->connected = false;
     this->sent_messages.clear();
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "   changing connection state...");
     this->updateConnectionState(0);
 }
 
@@ -182,17 +178,13 @@ void udpClient::checkTimeouts() {
 void udpClient::send(std::string type, std::string msg, bool await_reply) {
     std::string full_msg = type + " " + msg;
     const char *char_msg = full_msg.c_str();
-    ssize_t n = sendto(sock, char_msg, strlen(char_msg), 0, (sockaddr *) &server, sizeof(server));
-    if (n < 0) {
-        //TODO
-    }
+    sendto(sock, char_msg, strlen(char_msg), 0, (sockaddr *) &server, sizeof(server));
+    // Who cares if there's an error, this is a UDP client after all ¯\_(ツ)_/¯
+
     if (await_reply) {
         sent s{type, msg, static_cast<int64_t >(time(nullptr))};
         this->sent_messages.push_back(s);
     }
-
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "message sent: %s %s", type.c_str(),
-                        msg.c_str());
 }
 
 std::string udpClient::receive() {
@@ -205,7 +197,6 @@ std::string udpClient::receive() {
         return "[RECEPTION_ERROR]";
     }
 
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "reply received: %s", std::string(reply_buf, n).c_str());
     return std::string(reply_buf, n);
 }
 
@@ -214,11 +205,7 @@ void udpClient::sendData(std::string data) {
 }
 
 void udpClient::connect() {
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "udpClient connecting...");
-
     this->updateConnectionState(1);
-
-    __android_log_print(ANDROID_LOG_DEBUG, "BMC-App", "UI connection state set");
 
     std::string msg = std::string(this->device_name);
 
