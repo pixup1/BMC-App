@@ -50,8 +50,11 @@ import androidx.datastore.dataStore
 import com.bmc.app.models.ConnectionPageData
 import com.bmc.app.models.ConnectionPageDataSerializer
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.rounded.Clear
@@ -59,6 +62,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import com.bmc.app.R
 import com.bmc.app.ui.components.QrScanner
 import com.bmc.app.ui.components.TopBar
@@ -100,6 +104,7 @@ fun ConnectionPage(
     }
 
     fun connect(address: String) {
+        Log.d("BMC-ConnectionPage", "Connecting to $address")
         onAddressSubmit(address)
         scope.launch {
             context.connectionPageDataStore.updateData { currentData ->
@@ -118,9 +123,9 @@ fun ConnectionPage(
     ) { granted: Boolean ->
         hasCameraPermission = granted
         if (!granted) {
-            scope.launch {
-                snackbarHostState.showSnackbar(permissionMessage)
-            }
+//            scope.launch {
+//                snackbarHostState.showSnackbar(permissionMessage)
+//            }
         }
     }
 
@@ -153,32 +158,26 @@ fun ConnectionPage(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .size(width = 300.dp, height = 400.dp)
+                        .aspectRatio(3/4f)
+                        .heightIn(max = Dimens.HeightQrScanner)
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     if (hasCameraPermission) {
                         val pleaseMessage = stringResource(R.string.please_scan_bmc_qr_code)
-                        QrScanner(onQrCodeScanned = {
-                            try {
-                                connect(addressInput)
-                            } catch (_: IllegalArgumentException) {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(pleaseMessage)
+                        QrScanner(
+                            onQrCodeScanned = {
+                                try {
+                                    connect(it) //TODO: fix attempt to connect several times
+                                } catch (_: IllegalArgumentException) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(pleaseMessage) //TODO: Fix messages buffer overflow when scanning invalid QR code
+                                    }
                                 }
-                            }
-                        })
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
                     } else {
-//                        if (ActivityCompat.shouldShowRequestPermissionRationale(
-//                                context as android.app.Activity,
-//                                android.Manifest.permission.CAMERA
-//                            )
-//                        ) {
-//                            Dialog({}) {
-//                                Surface {
-//                                    Text("Camera permission is needed to scan QR codes. Alternatively, the host IP address can be entered manually.")
-//                                }
-//                            }
-//                        }
-                        Surface (
+                        Surface(
                             color = Color.LightGray,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -194,14 +193,13 @@ fun ConnectionPage(
                             Column(
                                 verticalArrangement = Arrangement.Center,
                                 modifier = Modifier
-                                    .align(Alignment.Center)
                                     .fillMaxHeight()
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.CameraAlt,
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(50.dp)
+                                        .size(Dimens.SizeQrScannerCameraLogo)
                                         .align(Alignment.CenterHorizontally)
                                 )
                                 Text(

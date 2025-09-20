@@ -23,4 +23,6 @@ object Dimens {
     val SizeAxisDialogPhone = 140.dp
     val SizeAxisDialogArrows = 90.dp
     val PaddingSettingsDescription = 2.dp
+    val HeightQrScanner = 400.dp
+    val SizeQrScannerCameraLogo = 50.dp
 }

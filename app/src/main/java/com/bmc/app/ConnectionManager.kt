@@ -4,6 +4,7 @@ import android.content.Context
 import com.bmc.app.models.ConnectionState
 import com.bmc.app.ui.BmcViewModel
 import android.provider.Settings
+import android.util.Log
 
 class ConnectionManager(
     private val context: Context,

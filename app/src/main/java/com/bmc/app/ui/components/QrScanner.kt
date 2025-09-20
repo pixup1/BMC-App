@@ -9,6 +9,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -20,8 +22,12 @@ import com.google.mlkit.vision.common.InputImage
 
 @OptIn(ExperimentalGetImage::class)
 @Composable
-fun QrScanner(onQrCodeScanned: (String) -> Unit) {
+fun QrScanner(
+    onQrCodeScanned: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val lastScannedValue = remember { mutableStateOf<String>("") }
     val options = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
         .build()
@@ -50,7 +56,10 @@ fun QrScanner(onQrCodeScanned: (String) -> Unit) {
                             .addOnSuccessListener { barcodes ->
                                 barcodes.forEach { barcode ->
                                     barcode.rawValue?.let { value ->
-                                        onQrCodeScanned(value)
+                                        if (lastScannedValue.value != value) { // Only fire up function once
+                                            lastScannedValue.value = value
+                                            onQrCodeScanned(value)
+                                        }
                                     }
                                 }
                             }
@@ -77,6 +86,6 @@ fun QrScanner(onQrCodeScanned: (String) -> Unit) {
 
             previewView
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     )
 }

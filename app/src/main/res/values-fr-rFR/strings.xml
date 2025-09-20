@@ -16,7 +16,7 @@
     <string name="axis_dialog_description">Faites correspondre les axes à ceux de l\'espace local de l\'objet.  Le troisième axe sera déduit.</string>
     <string name="camera_permission_needed">La permission d\'accéder à la caméra est nécessaire pour scanner les codes QR</string>
     <string name="scan_qr_code">Scannez le code QR de l\'extension :</string>
-    <string name="camera_permission_not_granted">Persmission de caméra non accordée</string>
+    <string name="camera_permission_not_granted">Permission de caméra non accordée</string>
     <string name="or_enter_host_address">Ou entrez l\'adresse de l\'hôte manuellement :</string>
     <string name="enter_host_address">Entrez l\'adresse de l\'hôte :</string>
     <string name="recent_connections">Connexions récentes :</string>
