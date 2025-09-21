@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -52,17 +51,25 @@ fun SettingsPage(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    val useArcoreFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.useArcore }
+
+    val useArcoreFlow = remember {
+        context.settingsDataStore.data.map { data: Settings -> data.useArcore }
+    }
     val useArcore by useArcoreFlow.collectAsState(initial = false)
-    val useAccelerometerFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.useAccelerometer }
-    val useAcceleratometer by useAccelerometerFlow.collectAsState(initial = false)
-    val accelerometerCutoffFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.accelerometerCutoff }
+
+    val useAccelerometerFlow = remember {
+        context.settingsDataStore.data.map { data: Settings -> data.useAccelerometer }
+    }
+    val useAccelerometer by useAccelerometerFlow.collectAsState(initial = false)
+
+    val accelerometerCutoffFlow = remember {
+        context.settingsDataStore.data.map { data: Settings -> data.accelerometerCutoff }
+    }
     val accelerometerCutoff by accelerometerCutoffFlow.collectAsState(initial = 1.0f)
-    val absoluteRotationFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.absoluteRotation }
+
+    val absoluteRotationFlow = remember {
+        context.settingsDataStore.data.map { data: Settings -> data.absoluteRotation }
+    }
     val absoluteRotation by absoluteRotationFlow.collectAsState(initial = false)
 
     var showAxisDialog by remember { mutableStateOf(false) }
@@ -129,7 +136,7 @@ fun SettingsPage(
                     SettingsSwitch(
                         text = stringResource(R.string.use_accelerometer),
                         description = stringResource(R.string.use_accelerometer_description),
-                        checked = useAcceleratometer,
+                        checked = useAccelerometer,
                         onCheckedChange = {
                             scope.launch {
                                 context.settingsDataStore.updateData { currentSettings ->
@@ -143,7 +150,7 @@ fun SettingsPage(
                 }
             }
             AnimatedVisibility(
-                visible = useAcceleratometer && !useArcore
+                visible = useAccelerometer && !useArcore
             ) {
                 Column {
                     SettingsItemsDivider()

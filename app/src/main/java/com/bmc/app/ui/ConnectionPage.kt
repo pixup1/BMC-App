@@ -87,8 +87,9 @@ fun ConnectionPage(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    val recentHostsFlow = context.connectionPageDataStore.data
-        .map { data: ConnectionPageData -> data.recentHostsList }
+    val recentHostsFlow = remember {
+        context.connectionPageDataStore.data.map { data: ConnectionPageData -> data.recentHostsList }
+    }
     val recentHosts by recentHostsFlow.collectAsState(initial = emptyList())
 
     var addressInput by remember { mutableStateOf("") }

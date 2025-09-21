@@ -53,12 +53,16 @@ fun AxisDialog(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val topAxisFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.topAxis }
+
+    val topAxisFlow = remember {
+        context.settingsDataStore.data.map { data: Settings -> data.topAxis }
+    }
     val topAxis by topAxisFlow.collectAsState(initial = 2)
-    val rightAxisFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.rightAxis }
-    val rightAxis by rightAxisFlow.collectAsState(initial = 1)
+
+    val rightAxisFlow = remember {
+        context.settingsDataStore.data.map { data: Settings -> data.rightAxis }
+    }
+    val rightAxis by rightAxisFlow.collectAsState(initial = 2)
 
     var rightMenuOpen by remember { mutableStateOf(false) }
     var topMenuOpen by remember { mutableStateOf(false) }

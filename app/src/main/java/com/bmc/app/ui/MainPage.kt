@@ -84,11 +84,15 @@ fun MainPage(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val useAccelerometerFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.useAccelerometer }
+
+    val useAccelerometerFlow = remember {
+        context.settingsDataStore.data.map { data: Settings -> data.useAccelerometer }
+    }
     val useAccelerometer by useAccelerometerFlow.collectAsState(initial = false)
-    val absoluteRotationFlow = context.settingsDataStore.data
-        .map { data: Settings -> data.absoluteRotation }
+
+    val absoluteRotationFlow = remember {
+        context.settingsDataStore.data.map { data: Settings -> data.absoluteRotation }
+    }
     val absoluteRotation by absoluteRotationFlow.collectAsState(initial = false)
 
     Scaffold(
