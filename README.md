@@ -6,7 +6,7 @@ Requires a computer running Blender with [BMC - Addon](https://github.com/pixup1
 
 ## Installation
 
-Get the APK file from the latest release and install it on an Android device. You will need to enable
+Get the APK file from the latest release and install it on an Android device.
 
 ## Usage
 
